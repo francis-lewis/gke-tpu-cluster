@@ -2,7 +2,7 @@
 
 container_id=$(cat /etc/hostname)
 gke_service_account=$(curl -H "Metadata-Flavor: Google" http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/email)
-gke_oslogin_username=$(gcloud compute os-login describe-profile --impersonate-service-account=$gke_service_account | awk '/username/ {print $2}')
+gke_oslogin_username=$(gcloud compute os-login describe-profile | awk '/username/ {print $2}')
 tpu_node_name=gke-tpu-${container_id}
 zone=us-central1-a
 echo "gke service account: $gke_service_account"
@@ -29,4 +29,4 @@ echo -e "completed tpu_worker.sh on $tpu_node_name!"
 echo -e "\ndeleting $tpu_node_name..."
 gcloud alpha compute tpus tpu-vm delete $tpu_node_name --zone=$zone --quiet
 echo -e "deleted $tpu_node_name!"
-echo -e "\nbyebyeeee"
+echo -e "\ngoodbye world"
