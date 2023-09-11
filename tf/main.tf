@@ -38,6 +38,18 @@ resource "google_service_account" "gke_cluster_service_account" {
   display_name = "GKE Cluster Service Account"
 }
 
+resource "google_project_iam_member" "gke_cluster_sa-artifactregistry_reader" {
+  project = var.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
+}
+
+resource "google_project_iam_member" "gke_cluster_sa-tpu_admin" {
+  project = var.project_id
+  role    = "roles/tpu.admin"
+  member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
+}
+
 resource "google_container_cluster" "primary" {
   name     = "${var.project_id}-test-gke"
   location = var.region
