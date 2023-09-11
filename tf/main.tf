@@ -26,16 +26,40 @@ provider "google" {
   zone    = var.zone
 }
 
+resource "google_service_account" "gke_cluster_service_account" {
+  account_id   = "gke-cluster-service-account"
+  display_name = "GKE Cluster Service Account"
+}
+
+resource "google_project_iam_member" "gke_cluster_sa-artifactregistry_reader" {
+  project = var.project_id
+  role    = "roles/artifactregistry.reader"
+  member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
+}
+
+resource "google_project_iam_member" "gke_cluster_sa-tpu_admin" {
+  project = var.project_id
+  role    = "roles/tpu.admin"
+  member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
+}
+
+resource "google_project_iam_member" "gke_cluster_sa-service_account_user" {
+  project = var.project_id
+  role    = "roles/iam.serviceAccountUser)"
+  member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
+}
+
+resource "google_project_iam_member" "gke_cluster_sa-compute_oslogin" {
+  project = var.project_id
+  role    = "roles/compute.osLogin)"
+  member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
+}
+
 resource "google_artifact_registry_repository" "gke-repository" {
   location      = "us-central1"
   repository_id = "gke-repository"
   description   = "Docker repository for GKE container images"
   format        = "DOCKER"
-}
-
-resource "google_service_account" "gke_cluster_service_account" {
-  account_id   = "gke-cluster-service-account"
-  display_name = "GKE Cluster Service Account"
 }
 
 resource "google_container_cluster" "primary" {
