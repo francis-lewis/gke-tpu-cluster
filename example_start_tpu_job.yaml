@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: start-tpu
+spec:
+  template:
+    spec:
+      containers:
+      - name: start-tpu
+        image: <path_to_image_here>
+        command: ["/bin/bash", "/scripts/tpu_daemon.sh"]
+        imagePullPolicy: Always
+      restartPolicy: Never
+  backoffLimit: 4
