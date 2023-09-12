@@ -27,6 +27,7 @@ provider "google" {
 }
 
 resource "google_service_account" "gke_cluster_service_account" {
+  project      = var.project_id
   account_id   = "gke-cluster-service-account"
   display_name = "GKE Cluster Service Account"
 }
@@ -45,13 +46,13 @@ resource "google_project_iam_member" "gke_cluster_sa-tpu_admin" {
 
 resource "google_project_iam_member" "gke_cluster_sa-service_account_user" {
   project = var.project_id
-  role    = "roles/iam.serviceAccountUser)"
+  role    = "roles/iam.serviceAccountUser"
   member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
 }
 
 resource "google_project_iam_member" "gke_cluster_sa-compute_oslogin" {
   project = var.project_id
-  role    = "roles/compute.osLogin)"
+  role    = "roles/compute.osLogin"
   member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
 }
 
