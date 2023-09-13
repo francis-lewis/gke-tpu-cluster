@@ -22,14 +22,18 @@ gcloud alpha compute tpus tpu-vm create $tpu_node_name \
   --preemptible \
   --service-account=$gke_service_account \
   --scopes=https://www.googleapis.com/auth/cloud-platform
+if [[ $? -ne 0 ]]; then
+  echo "couldn't create $tpu_node_name!"; exit 1
+fi
 echo -e "created tpu node $tpu_node_name!"
 
 echo -e "\ncopying tpu_worker.sh to $tpu_node_name..."
 gcloud alpha compute tpus tpu-vm scp /scripts/worker $gke_oslogin_username@$tpu_node_name:/tmp --zone=$TPU_VM_ZONE --recurse --quiet
-echo -e "copied tpu_worker.sh to $tpu_node_name!"
+echo -e "copied /scripts/worker to $tpu_node_name!"
 
 echo -e "\nrunning tpu_worker.sh on $tpu_node_name..."
 gcloud alpha compute tpus tpu-vm ssh $gke_oslogin_username@$tpu_node_name --zone=$TPU_VM_ZONE --quiet -- /tmp/worker/tpu_worker.sh
+return_status=$?
 echo -e "completed tpu_worker.sh on $tpu_node_name!"
 
 echo -e "\ndeleting $tpu_node_name..."
@@ -39,3 +43,4 @@ echo -e "deleted $tpu_node_name!"
 gcloud compute os-login ssh-keys remove --key-file=/root/.ssh/google_compute_engine.pub
 
 echo -e "\ngoodbye world"
+exit $return_status

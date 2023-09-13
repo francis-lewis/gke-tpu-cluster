@@ -9,5 +9,4 @@ spec:
       - name: start-tpu
         image: <path_to_image_here>
         command: ["/bin/bash", "/scripts/tpu_launcher.sh"]
-      restartPolicy: Never
-  backoffLimit: 4
+      restartPolicy: OnFailure
