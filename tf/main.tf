@@ -56,6 +56,12 @@ resource "google_project_iam_member" "gke_cluster_sa-compute_osadminlogin" {
   member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
 }
 
+resource "google_project_iam_member" "gke_cluster_sa-storage_admin" {
+  project = var.project_id
+  role    = "roles/storage.admin"
+  member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
+}
+
 resource "google_artifact_registry_repository" "gke-repository" {
   location      = "us-central1"
   repository_id = "gke-repository"
