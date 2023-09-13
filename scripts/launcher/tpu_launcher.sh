@@ -6,6 +6,7 @@ container_id=$(cat /etc/hostname)
 tpu_node_name=${TPU_VM_PREFIX}-${container_id}
 
 # This configures OS Login on first run
+gcloud auth list
 ssh-keygen -t rsa -f /root/.ssh/google_compute_engine -b 2048
 gcloud compute os-login ssh-keys add --key-file=/root/.ssh/google_compute_engine.pub
 
@@ -23,6 +24,7 @@ gcloud alpha compute tpus tpu-vm create $tpu_node_name \
   --service-account=$gke_service_account \
   --scopes=https://www.googleapis.com/auth/cloud-platform
 if [[ $? -ne 0 ]]; then
+  gcloud compute os-login ssh-keys remove --key-file=/root/.ssh/google_compute_engine.pub
   echo "couldn't create $tpu_node_name!"; exit 1
 fi
 echo -e "created tpu node $tpu_node_name!"
@@ -37,7 +39,7 @@ return_status=$?
 echo -e "completed tpu_worker.sh on $tpu_node_name!"
 
 echo -e "\ndeleting $tpu_node_name..."
-gcloud alpha compute tpus tpu-vm delete $tpu_node_name --zone=$TPU_VM_ZONE --quiet
+gcloud alpha compute tpus tpu-vm delete $tpu_node_name --zone=$TPU_VM_ZONE --quiet --async
 echo -e "deleted $tpu_node_name!"
 
 gcloud compute os-login ssh-keys remove --key-file=/root/.ssh/google_compute_engine.pub

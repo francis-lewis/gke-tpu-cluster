@@ -17,7 +17,14 @@ sudo mkdir -p /mnt/disks/bucket
 sudo chmod -R 777 /mnt/disks/bucket
 gcsfuse -o allow_other --file-mode=777 --dir-mode=777 $TPU_GCP_BUCKET /mnt/disks/bucket
 
-sudo gcloud auth configure-docker us-central1-docker.pkg.dev
-sudo docker pull $TPU_DOCKER_IMAGE
+sudo groupadd docker
+sudo usermod -aG docker $USER
 
-source /tmp/worker/workload.sh
+newgrp docker << EONG
+gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+echo "Running workload..."
+/tmp/worker/workload.sh
+return_value=$-
+echo "Workload finished with return value $return_value"
+exit $return_value
+EONG
