@@ -24,7 +24,7 @@ newgrp docker << EONG
 gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 echo "Running workload..."
 /tmp/worker/workload.sh
-return_value=$-
+return_value=$?
 echo "Workload finished with return value $return_value"
 exit $return_value
 EONG
