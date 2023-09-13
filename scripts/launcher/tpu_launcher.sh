@@ -1,8 +1,9 @@
 #! /bin/bash
 
+source /scripts/launcher/tpu_launcher_variables.sh
+
 container_id=$(cat /etc/hostname)
-tpu_node_name=gke-tpu-${container_id}
-zone=us-central1-a
+tpu_node_name=${TPU_VM_PREFIX}-${container_id}
 
 # This configures OS Login on first run
 ssh-keygen -t rsa -f /root/.ssh/google_compute_engine -b 2048
@@ -15,24 +16,24 @@ echo "gke_oslogin_username: $gke_oslogin_username"
 
 echo -e "\ncreating tpu node $tpu_node_name..."
 gcloud alpha compute tpus tpu-vm create $tpu_node_name \
-  --zone=$zone \
-  --accelerator-type=v3-8 \
-  --version=tpu-vm-tf-2.7.0 \
+  --zone=$TPU_VM_ZONE \
+  --accelerator-type=$TPU_VM_ACCELERATOR_TYPE \
+  --version=$TPU_VM_VERSION \
   --preemptible \
   --service-account=$gke_service_account \
   --scopes=https://www.googleapis.com/auth/cloud-platform
 echo -e "created tpu node $tpu_node_name!"
 
 echo -e "\ncopying tpu_worker.sh to $tpu_node_name..."
-gcloud alpha compute tpus tpu-vm scp /scripts/tpu_worker.sh $gke_oslogin_username@$tpu_node_name:/tmp --zone=$zone --quiet
+gcloud alpha compute tpus tpu-vm scp /scripts/worker $gke_oslogin_username@$tpu_node_name:/tmp --zone=$TPU_VM_ZONE --recurse --quiet
 echo -e "copied tpu_worker.sh to $tpu_node_name!"
 
 echo -e "\nrunning tpu_worker.sh on $tpu_node_name..."
-gcloud alpha compute tpus tpu-vm ssh $gke_oslogin_username@$tpu_node_name --zone=$zone --quiet -- /tmp/tpu_worker.sh
+gcloud alpha compute tpus tpu-vm ssh $gke_oslogin_username@$tpu_node_name --zone=$TPU_VM_ZONE --quiet -- /tmp/worker/tpu_worker.sh
 echo -e "completed tpu_worker.sh on $tpu_node_name!"
 
 echo -e "\ndeleting $tpu_node_name..."
-gcloud alpha compute tpus tpu-vm delete $tpu_node_name --zone=$zone --quiet
+gcloud alpha compute tpus tpu-vm delete $tpu_node_name --zone=$TPU_VM_ZONE --quiet
 echo -e "deleted $tpu_node_name!"
 
 gcloud compute os-login ssh-keys remove --key-file=/root/.ssh/google_compute_engine.pub
