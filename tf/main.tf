@@ -50,9 +50,9 @@ resource "google_project_iam_member" "gke_cluster_sa-service_account_user" {
   member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
 }
 
-resource "google_project_iam_member" "gke_cluster_sa-compute_oslogin" {
+resource "google_project_iam_member" "gke_cluster_sa-compute_osadminlogin" {
   project = var.project_id
-  role    = "roles/compute.osLogin"
+  role    = "roles/compute.osAdminLogin"
   member  = "serviceAccount:${google_service_account.gke_cluster_service_account.email}"
 }
 
